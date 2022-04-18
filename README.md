@@ -19,8 +19,8 @@
 
 #### 部分效果：
 
-<img src="D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\asset\manhead\线稿模式.png" alt="线稿模式" style="zoom:50%;" />
+!(https://github.com/xvxv1702/pikaRender/blob/xvxv1702-patch-1/pikaRender1_3/asset/manhead/%E7%9D%80%E8%89%B2%E6%A8%A1%E5%BC%8F.png)
 
-<img src="D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\asset\manhead\黑白着色模式.png" alt="黑白着色模式" style="zoom:50%;" />
+!(https://github.com/xvxv1702/pikaRender/blob/xvxv1702-patch-1/pikaRender1_3/asset/manhead/%E7%9D%80%E8%89%B2%E6%A8%A1%E5%BC%8F.png)
 
-<img src="D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\asset\manhead\着色模式.png" alt="着色模式" style="zoom:50%;" />
+!(https://github.com/xvxv1702/pikaRender/blob/xvxv1702-patch-1/pikaRender1_3/asset/manhead/%E7%9D%80%E8%89%B2%E6%A8%A1%E5%BC%8F.png)
