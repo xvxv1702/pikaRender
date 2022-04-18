@@ -1,0 +1,132 @@
+﻿  geometry.cpp
+  main.cpp
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myCamera.h(26,46): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myCamera.h(26,33): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myCamera.h(26,20): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\main.cpp(82,20): warning C4305: “+=”: 从“double”到“t”截断
+          with
+          [
+              t=float
+          ]
+  model.cpp
+  mymath.cpp
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\mymath.cpp(70,31): warning C4305: “初始化”: 从“double”到“float”截断
+  myRaster.cpp
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myCamera.h(26,46): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myCamera.h(26,33): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myCamera.h(26,20): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(19,15): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(40,16): warning C4244: “初始化”: 从“t”转换到“int”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(42,15): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(68,31): warning C4305: “初始化”: 从“double”到“float”截断
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(131,68): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(131,38): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(132,69): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(132,39): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(133,69): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(133,39): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(137,22): warning C4244: “初始化”: 从“const _Ty”转换到“int”，可能丢失数据
+          with
+          [
+              _Ty=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(138,22): warning C4244: “初始化”: 从“const _Ty”转换到“int”，可能丢失数据
+          with
+          [
+              _Ty=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(139,22): warning C4244: “初始化”: 从“const _Ty”转换到“int”，可能丢失数据
+          with
+          [
+              _Ty=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(140,22): warning C4244: “初始化”: 从“const _Ty”转换到“int”，可能丢失数据
+          with
+          [
+              _Ty=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(182,69): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(182,39): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(183,69): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(183,39): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(184,69): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myRaster.cpp(184,39): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+  tgaimage.cpp
+  正在生成代码...
+  pikaRender1_3.vcxproj -> D:\learn\TA_learn\softRender\pikaRender1_3\x64\Debug\pikaRender1_3.exe

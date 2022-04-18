@@ -1,0 +1,22 @@
+﻿  main.cpp
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myCamera.h(26,46): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myCamera.h(26,33): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\myCamera.h(26,20): warning C4244: “参数”: 从“double”转换到“t”，可能丢失数据
+          with
+          [
+              t=float
+          ]
+D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\src\main.cpp(84,16): warning C4305: “+=”: 从“double”到“t”截断
+          with
+          [
+              t=float
+          ]
+  pikaRender1_3.vcxproj -> D:\learn\TA_learn\softRender\pikaRender1_3\Debug\pikaRender1_3.exe
