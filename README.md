@@ -19,8 +19,8 @@
 
 #### 部分效果：
 
-![线稿模式](https://github.com/xvxv1702/pikaRender/blob/xvxv1702-patch-1/pikaRender1_3/asset/manhead/%E7%9D%80%E8%89%B2%E6%A8%A1%E5%BC%8F.png)
+![线稿模式](https://github.com/xvxv1702/pikaRender/blob/xvxv1702-patch-1/pikaRender1_3/asset/manhead/%E7%BA%BF%E7%A8%BF%E6%A8%A1%E5%BC%8F.png)
 
-![phong模型](https://github.com/xvxv1702/pikaRender/blob/xvxv1702-patch-1/pikaRender1_3/asset/manhead/%E7%9D%80%E8%89%B2%E6%A8%A1%E5%BC%8F.png)
+![phong模型](https://github.com/xvxv1702/pikaRender/blob/xvxv1702-patch-1/pikaRender1_3/asset/manhead/%E9%BB%91%E7%99%BD%E7%9D%80%E8%89%B2%E6%A8%A1%E5%BC%8F.png)
 
 ![着色模式](https://github.com/xvxv1702/pikaRender/blob/xvxv1702-patch-1/pikaRender1_3/asset/manhead/%E7%9D%80%E8%89%B2%E6%A8%A1%E5%BC%8F.png)
