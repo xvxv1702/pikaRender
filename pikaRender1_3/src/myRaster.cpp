@@ -135,7 +135,7 @@ void Raster::get_screensize(int width0, int height0) {
     width = width0;
     height = height0;
 }
-void Raster::shadeMode(HDC  memDC, TGAImage* baseTex, Vec3f ldir,float * depthBuffer) {
+void Raster::colorMode(HDC  memDC, TGAImage* baseTex, float * depthBuffer) {
     //初始化深度缓存区
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
@@ -152,8 +152,6 @@ void Raster::shadeMode(HDC  memDC, TGAImage* baseTex, Vec3f ldir,float * depthBu
         Vec2f uv0 = model->uv(model->uvIndex(i)[0]); Vec2f uv1 = model->uv(model->uvIndex(i)[1]); Vec2f uv2 = model->uv(model->uvIndex(i)[2]);
         Vec3f norm = (v1 - v0)^(v2 - v0) ;
         norm.normalize();
-        float ndotl = ldir*norm;//光照计算
-        ndotl = clamp(0., 1., ndotl);
         //模型mvpv变换
         v0= m2v(tranMat * p2m(v0)); v1= m2v(tranMat * p2m(v1)); v2= m2v(tranMat * p2m(v2));
         v0= Vec3f((v0.x + 1.0) * 0.5 * float(width), float(height) - (v0.y + 1.0) * 0.5 * float(height), v0.z);
@@ -181,10 +179,7 @@ void Raster::shadeMode(HDC  memDC, TGAImage* baseTex, Vec3f ldir,float * depthBu
                             Vec2f uv = uv0 * alpha + uv1 * beta + uv2 * gamma;
                             TGAColor texcol = baseTex->get(int(baseTex->get_width() * uv.x), int(baseTex->get_height() * (1.f - uv.y)));
                             COLORREF texturecolor = RGB(texcol.r , texcol.g , texcol.b );
-                            COLORREF normcol = RGB(norm.x*255, norm.y*255, norm.z*255);
-                            COLORREF lightcol = RGB(texcol.r * ndotl, texcol.g * ndotl, texcol.b * ndotl);
-                            COLORREF phong = RGB(255 * ndotl, 255 * ndotl,255* ndotl);
-                            SetPixel(memDC, x, y, phong);
+                            SetPixel(memDC, x, y, texturecolor);
                             depthBuffer[x * width + y] = depth;
                         }
                     }
@@ -212,7 +207,66 @@ void Raster::lineMode(HDC  memDC) {
         }
     }
 }
-void Raster::shadeMode(HDC  memDC, TGAImage* baseTex, TGAImage* normTex, Vec3f ldir, float* depthBuffer) {
+void Raster::shadeMode(HDC  memDC, TGAImage* baseTex, Vec3f ldir, float* depthBuffer) {
+    //初始化深度缓存区
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            depthBuffer[i * width + j] = std::numeric_limits<float>::max() * (-1);
+        }
+    }
+    Matrix tranMat = get_tranMat();
+    //ofstream log("./renderlog.txt");
+    //log << tranMat << endl;
+    //log.close();
+
+    for (int i = 0; i < model->nfaces(); i++) {
+        Vec3f v0 = model->vert(model->face(i)[0]); Vec3f v1 = model->vert(model->face(i)[1]); Vec3f v2 = model->vert(model->face(i)[2]);
+        Vec2f uv0 = model->uv(model->uvIndex(i)[0]); Vec2f uv1 = model->uv(model->uvIndex(i)[1]); Vec2f uv2 = model->uv(model->uvIndex(i)[2]);
+        Vec3f norm = (v1 - v0) ^ (v2 - v0);
+        norm.normalize();
+        //光照计算
+        float ndotl = ldir * norm;
+        float diffuse = clamp(0., 1., ndotl) * 0.5 + 0.5;
+        Vec3f h = ((camera->dir * (-1.0) + ldir) * 0.5).normalize();
+        float specular = pow(h * norm, 60.0);
+        //模型mvpv变换
+        v0 = m2v(tranMat * p2m(v0)); v1 = m2v(tranMat * p2m(v1)); v2 = m2v(tranMat * p2m(v2));
+        v0 = Vec3f((v0.x + 1.0) * 0.5 * float(width), float(height) - (v0.y + 1.0) * 0.5 * float(height), v0.z);
+        v1 = Vec3f((v1.x + 1.0) * 0.5 * float(width), float(height) - (v1.y + 1.0) * 0.5 * float(height), v1.z);
+        v2 = Vec3f((v2.x + 1.0) * 0.5 * float(width), float(height) - (v2.y + 1.0) * 0.5 * float(height), v2.z);
+        Vec3f normScreen = m2v(tranMat * v2m(norm)) * (-1);
+        if (normScreen.z >= 0) {
+
+            int xmax = std::max(v0.x, std::max(v1.x, v2.x));
+            int xmin = std::min(v0.x, std::min(v1.x, v2.x));
+            int ymax = std::max(v0.y, std::max(v1.y, v2.y));
+            int ymin = std::min(v0.y, std::min(v1.y, v2.y));
+
+            for (int x = xmin; x <= xmax; x++) {
+                for (int y = ymin; y <= ymax; y++) {
+                    float alpha, beta, gamma;
+                    //求重心坐标
+                    alpha = (-(x - v1.x) * (v2.y - v1.y) + (y - v1.y) * (v2.x - v1.x)) / (-(v0.x - v1.x) * (v2.y - v1.y) + (v0.y - v1.y) * (v2.x - v1.x));
+                    beta = (-(x - v2.x) * (v0.y - v2.y) + (y - v2.y) * (v0.x - v2.x)) / (-(v1.x - v2.x) * (v0.y - v2.y) + (v1.y - v2.y) * (v0.x - v2.x));
+                    gamma = 1.f - alpha - beta;
+
+                    if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+                        float depth = alpha * v0.z + beta * v1.z + gamma * v2.z;
+                        if (depth > depthBuffer[x * width + y]) {
+                            Vec2f uv = uv0 * alpha + uv1 * beta + uv2 * gamma;
+                            TGAColor texcol = baseTex->get(int(baseTex->get_width() * uv.x), int(baseTex->get_height() * (1.f - uv.y)));
+                            COLORREF lightcol = RGB(clamp(0,255,texcol.r * diffuse+ specular*255),clamp(0,255, texcol.g * diffuse + specular * 255), clamp(0,255,texcol.b * diffuse + specular * 255));
+
+                            SetPixel(memDC, x, y, lightcol);
+                            depthBuffer[x * width + y] = depth;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+void Raster::shadeMode2(HDC  memDC, TGAImage* baseTex, TGAImage* normTex, Vec3f ldir, float* depthBuffer) {
     //初始化深度缓存区
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
@@ -255,9 +309,9 @@ void Raster::shadeMode(HDC  memDC, TGAImage* baseTex, TGAImage* normTex, Vec3f l
                             Vec2f uv = uv0 * alpha + uv1 * beta + uv2 * gamma;
                             TGAColor texcol = baseTex->get(int(baseTex->get_width() * uv.x), int(baseTex->get_height() * (1.f - uv.y)));
                             TGAColor normtexcol = normTex->get(int(normTex->get_width() * uv.x), int(normTex->get_height() * (1.f - uv.y)));
-                            norm = Vec3f(normtexcol.r, normtexcol.g, normtexcol.b).normalize();
+                            norm = Vec3f((normtexcol.r/255.0-0.5)*2.0, (normtexcol.g / 255.0 - 0.5) * 2.0, (normtexcol.b / 255.0 - 0.5) * 2.0).normalize();//特别注意，这里颜色是0-255，但是法线应该是-1到1
                             float ndotl = ldir * norm;//光照计算
-                            ndotl = clamp(0., 1., ndotl);
+                            ndotl = clamp(0.0, 1., ndotl);
                             //COLORREF texturecolor = RGB(texcol.r, texcol.g, texcol.b);
                             //COLORREF normcol = RGB(normtexcol.r, normtexcol.g, normtexcol.b);
                             COLORREF lightcol = RGB(texcol.r * ndotl, texcol.g * ndotl, texcol.b * ndotl);
@@ -272,7 +326,76 @@ void Raster::shadeMode(HDC  memDC, TGAImage* baseTex, TGAImage* normTex, Vec3f l
     }
 
 }
-void Raster::shadeMode(HDC  memDC, TGAImage* baseTex, TGAImage* normTex, TGAImage* tan_normTex, Vec3f ldir, float* depthBuffer) {
+void Raster::shadeMode3(HDC  memDC, TGAImage* baseTex, TGAImage* tan_normTex, Vec3f ldir, float* depthBuffer) {
+    //初始化深度缓存区
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            depthBuffer[i * width + j] = std::numeric_limits<float>::max() * (-1);
+        }
+    }
+    Matrix tranMat = get_tranMat();
+    //ofstream log("./renderlog.txt");
+    //log << tranMat << endl;
+    //log.close();
+
+    for (int i = 0; i < model->nfaces(); i++) {
+        Vec3f v0 = model->vert(model->face(i)[0]); Vec3f v1 = model->vert(model->face(i)[1]); Vec3f v2 = model->vert(model->face(i)[2]);
+        Vec3f n0 = model->normal(model->face(i)[0]); Vec3f n1 = model->normal(model->face(i)[1]); Vec3f n2 = model->normal(model->face(i)[2]);
+        Vec2f uv0 = model->uv(model->uvIndex(i)[0]); Vec2f uv1 = model->uv(model->uvIndex(i)[1]); Vec2f uv2 = model->uv(model->uvIndex(i)[2]);
+        Vec3f norm = ((v1 - v0) ^ (v2 - v0)).normalize();
+        
+        //模型mvp变换
+        v0 = m2v(tranMat * p2m(v0)); v1 = m2v(tranMat * p2m(v1)); v2 = m2v(tranMat * p2m(v2));
+        //视口变换
+        v0 = Vec3f((v0.x + 1.0) * 0.5 * float(width), float(height) - (v0.y + 1.0) * 0.5 * float(height), v0.z);
+        v1 = Vec3f((v1.x + 1.0) * 0.5 * float(width), float(height) - (v1.y + 1.0) * 0.5 * float(height), v1.z);
+        v2 = Vec3f((v2.x + 1.0) * 0.5 * float(width), float(height) - (v2.y + 1.0) * 0.5 * float(height), v2.z);
+        Vec3f normScreen = m2v(tranMat * v2m(norm)) * (-1);
+        if (normScreen.z >= 0) {
+
+            int xmax = std::max(v0.x, std::max(v1.x, v2.x));
+            int xmin = std::min(v0.x, std::min(v1.x, v2.x));
+            int ymax = std::max(v0.y, std::max(v1.y, v2.y));
+            int ymin = std::min(v0.y, std::min(v1.y, v2.y));
+
+            for (int x = xmin; x <= xmax; x++) {
+                for (int y = ymin; y <= ymax; y++) {
+                    float alpha, beta, gamma;
+                    //求重心坐标
+                    alpha = (-(x - v1.x) * (v2.y - v1.y) + (y - v1.y) * (v2.x - v1.x)) / (-(v0.x - v1.x) * (v2.y - v1.y) + (v0.y - v1.y) * (v2.x - v1.x));
+                    beta = (-(x - v2.x) * (v0.y - v2.y) + (y - v2.y) * (v0.x - v2.x)) / (-(v1.x - v2.x) * (v0.y - v2.y) + (v1.y - v2.y) * (v0.x - v2.x));
+                    gamma = 1.f - alpha - beta;
+
+                    if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+                        float depth = alpha * v0.z + beta * v1.z + gamma * v2.z;
+                        if (depth > depthBuffer[x * width + y]) {
+                            Vec2f uv = uv0 * alpha + uv1 * beta + uv2 * gamma;
+                            norm= n0 * alpha + n1 * beta + n2 * gamma;
+                            TGAColor texcol = baseTex->get(int(baseTex->get_width() * uv.x), int(baseTex->get_height() * (1.f - uv.y)));
+                            TGAColor tan_normcol = tan_normTex->get(int(tan_normTex->get_width() * uv.x), int(tan_normTex->get_height() * (1.f - uv.y)));
+                            Vec3f tan_norm = Vec3f((tan_normcol.r / 255.0 - 0.5) * 2.0, (tan_normcol.g / 255.0 - 0.5) * 2.0, (tan_normcol.b / 255.0 - 0.5) * 2.0).normalize();//特别注意，这里颜色是0-255，但是法线应该是-1到1
+                            
+                            Matrix TBNMat = get_TBNMat(norm, v0, v1, v2, uv0, uv1, uv2);//计算tbn矩阵
+                            norm = m2v(TBNMat * v2m(tan_norm)) * (-1.0);
+                            norm.normalize();
+
+                            //光照计算
+                            float ndotl = ldir * norm;
+                            float diffuse = clamp(0., 1., ndotl)*0.5+0.5;
+                            Vec3f h = ((camera->dir * (-1.0) + ldir) * 0.5).normalize();
+                            float specular = pow(h*norm,60.0);
+                            COLORREF finalcol = RGB(clamp(0, 255, texcol.r * diffuse + specular * 255), clamp(0, 255, texcol.g * diffuse + specular * 255), clamp(0, 255, texcol.b * diffuse + specular * 255));
+
+                            SetPixel(memDC, x, y, finalcol);
+                            depthBuffer[x * width + y] = depth;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+void Raster::faceMode(HDC  memDC,  Vec3f ldir, float* depthBuffer) {
     //初始化深度缓存区
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
@@ -308,28 +431,199 @@ void Raster::shadeMode(HDC  memDC, TGAImage* baseTex, TGAImage* normTex, TGAImag
                     alpha = (-(x - v1.x) * (v2.y - v1.y) + (y - v1.y) * (v2.x - v1.x)) / (-(v0.x - v1.x) * (v2.y - v1.y) + (v0.y - v1.y) * (v2.x - v1.x));
                     beta = (-(x - v2.x) * (v0.y - v2.y) + (y - v2.y) * (v0.x - v2.x)) / (-(v1.x - v2.x) * (v0.y - v2.y) + (v1.y - v2.y) * (v0.x - v2.x));
                     gamma = 1.f - alpha - beta;
+                    if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+                        float depth = alpha * v0.z + beta * v1.z + gamma * v2.z;
+                        if (depth > depthBuffer[x * width + y]) {
+                            //norm = Vec3f(normtexcol.r, normtexcol.g, normtexcol.b).normalize();
+                            float ndotl = ldir * norm;//光照计算
+                            ndotl = clamp(0.00, 1.0, ndotl);
+                            Vec3f halfnorm = ((camera->dir * (-1.0)) + ldir).normalize();
+                            float phong = pow(norm*halfnorm,500);
+                            float light = clamp(0., 1., ndotl)*0.5+0.5;
+                            COLORREF color= RGB(255 * light, 255 * light, 255 * light);
+                            SetPixel(memDC, x, y, color);
+                            depthBuffer[x * width + y] = depth;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+void Raster::phongMode1(HDC  memDC, Vec3f ldir, float* depthBuffer) {
+    //初始化深度缓存区
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            depthBuffer[i * width + j] = std::numeric_limits<float>::max() * (-1);
+        }
+    }
+    Matrix tranMat = get_tranMat();
+    //ofstream log("./renderlog.txt");
+    //log << tranMat << endl;
+    //log.close();
+
+    for (int i = 0; i < model->nfaces(); i++) {
+        Vec3f v0 = model->vert(model->face(i)[0]); Vec3f v1 = model->vert(model->face(i)[1]); Vec3f v2 = model->vert(model->face(i)[2]);
+        Vec3f n0 = model->normal(model->face(i)[0]); Vec3f n1 = model->normal(model->face(i)[1]); Vec3f n2 = model->normal(model->face(i)[2]);
+        Vec2f uv0 = model->uv(model->uvIndex(i)[0]); Vec2f uv1 = model->uv(model->uvIndex(i)[1]); Vec2f uv2 = model->uv(model->uvIndex(i)[2]);
+        Vec3f norm = ((v1 - v0) ^ (v2 - v0)).normalize();
+
+        //模型mvp变换
+        v0 = m2v(tranMat * p2m(v0)); v1 = m2v(tranMat * p2m(v1)); v2 = m2v(tranMat * p2m(v2));
+        //视口变换
+        v0 = Vec3f((v0.x + 1.0) * 0.5 * float(width), float(height) - (v0.y + 1.0) * 0.5 * float(height), v0.z);
+        v1 = Vec3f((v1.x + 1.0) * 0.5 * float(width), float(height) - (v1.y + 1.0) * 0.5 * float(height), v1.z);
+        v2 = Vec3f((v2.x + 1.0) * 0.5 * float(width), float(height) - (v2.y + 1.0) * 0.5 * float(height), v2.z);
+        Vec3f normScreen = m2v(tranMat * v2m(norm)) * (-1);
+        if (normScreen.z >= 0) {
+
+            int xmax = std::max(v0.x, std::max(v1.x, v2.x));
+            int xmin = std::min(v0.x, std::min(v1.x, v2.x));
+            int ymax = std::max(v0.y, std::max(v1.y, v2.y));
+            int ymin = std::min(v0.y, std::min(v1.y, v2.y));
+
+            for (int x = xmin; x <= xmax; x++) {
+                for (int y = ymin; y <= ymax; y++) {
+                    float alpha, beta, gamma;
+                    //求重心坐标
+                    alpha = (-(x - v1.x) * (v2.y - v1.y) + (y - v1.y) * (v2.x - v1.x)) / (-(v0.x - v1.x) * (v2.y - v1.y) + (v0.y - v1.y) * (v2.x - v1.x));
+                    beta = (-(x - v2.x) * (v0.y - v2.y) + (y - v2.y) * (v0.x - v2.x)) / (-(v1.x - v2.x) * (v0.y - v2.y) + (v1.y - v2.y) * (v0.x - v2.x));
+                    gamma = 1.f - alpha - beta;
 
                     if (alpha >= 0 && beta >= 0 && gamma >= 0) {
                         float depth = alpha * v0.z + beta * v1.z + gamma * v2.z;
                         if (depth > depthBuffer[x * width + y]) {
                             Vec2f uv = uv0 * alpha + uv1 * beta + uv2 * gamma;
-                            TGAColor texcol = baseTex->get(int(baseTex->get_width() * uv.x), int(baseTex->get_height() * (1.f - uv.y)));
+                            norm = n0 * alpha + n1 * beta + n2 * gamma;
+                            norm.normalize();
+
+                            float ndotl = ldir * norm;//光照计算
+                            ndotl = clamp(0., 1., ndotl)*0.5+0.5;
+                            COLORREF phong = RGB(255 * ndotl, 255 * ndotl, 255 * ndotl);
+                            SetPixel(memDC, x, y, phong);
+                            depthBuffer[x * width + y] = depth;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+void Raster::phongMode2(HDC  memDC, TGAImage* normTex, Vec3f ldir, float* depthBuffer) {
+    //初始化深度缓存区
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            depthBuffer[i * width + j] = std::numeric_limits<float>::max() * (-1);
+        }
+    }
+    Matrix tranMat = get_tranMat();
+    //ofstream log("./renderlog.txt");
+    //log << tranMat << endl;
+    //log.close();
+
+    for (int i = 0; i < model->nfaces(); i++) {
+        Vec3f v0 = model->vert(model->face(i)[0]); Vec3f v1 = model->vert(model->face(i)[1]); Vec3f v2 = model->vert(model->face(i)[2]);
+        Vec2f uv0 = model->uv(model->uvIndex(i)[0]); Vec2f uv1 = model->uv(model->uvIndex(i)[1]); Vec2f uv2 = model->uv(model->uvIndex(i)[2]);
+        Vec3f norm = ((v1 - v0) ^ (v2 - v0)).normalize();
+        //模型mvpv变换
+        v0 = m2v(tranMat * p2m(v0)); v1 = m2v(tranMat * p2m(v1)); v2 = m2v(tranMat * p2m(v2));
+        v0 = Vec3f((v0.x + 1.0) * 0.5 * float(width), float(height) - (v0.y + 1.0) * 0.5 * float(height), v0.z);
+        v1 = Vec3f((v1.x + 1.0) * 0.5 * float(width), float(height) - (v1.y + 1.0) * 0.5 * float(height), v1.z);
+        v2 = Vec3f((v2.x + 1.0) * 0.5 * float(width), float(height) - (v2.y + 1.0) * 0.5 * float(height), v2.z);
+        Vec3f normScreen = m2v(tranMat * v2m(norm)) * (-1);
+        if (normScreen.z >= 0) {
+            //计算包围盒
+            int xmax = std::max(v0.x, std::max(v1.x, v2.x));
+            int xmin = std::min(v0.x, std::min(v1.x, v2.x));
+            int ymax = std::max(v0.y, std::max(v1.y, v2.y));
+            int ymin = std::min(v0.y, std::min(v1.y, v2.y));
+
+            for (int x = xmin; x <= xmax; x++) {
+                for (int y = ymin; y <= ymax; y++) {
+                    float alpha, beta, gamma;
+                    //求重心坐标
+                    alpha = (-(x - v1.x) * (v2.y - v1.y) + (y - v1.y) * (v2.x - v1.x)) / (-(v0.x - v1.x) * (v2.y - v1.y) + (v0.y - v1.y) * (v2.x - v1.x));
+                    beta = (-(x - v2.x) * (v0.y - v2.y) + (y - v2.y) * (v0.x - v2.x)) / (-(v1.x - v2.x) * (v0.y - v2.y) + (v1.y - v2.y) * (v0.x - v2.x));
+                    gamma = 1.f - alpha - beta;
+
+                    if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+                        float depth = alpha * v0.z + beta * v1.z + gamma * v2.z;
+                        if (depth > depthBuffer[x * width + y]) {
+                            Vec2f uv = uv0 * alpha + uv1 * beta + uv2 * gamma;
                             TGAColor normtexcol = normTex->get(int(normTex->get_width() * uv.x), int(normTex->get_height() * (1.f - uv.y)));
-                            norm = Vec3f(normtexcol.r, normtexcol.g, normtexcol.b).normalize();
+                            norm = Vec3f((normtexcol.r / 255.0 - 0.5) * 2.0, (normtexcol.g / 255.0 - 0.5) * 2.0, (normtexcol.b / 255.0 - 0.5) * 2.0).normalize();//特别注意，这里颜色是0-255，但是法线应该是-1到1
+                            float ndotl = ldir * norm;//光照计算
+                            ndotl = clamp(0.0, 1., ndotl);
+                            COLORREF normcol = RGB(normtexcol.r, normtexcol.g, normtexcol.b);
+                            COLORREF phongcol = RGB(255 * ndotl, 255 * ndotl, 255 * ndotl);
+                            SetPixel(memDC, x, y, normcol);
+                            depthBuffer[x * width + y] = depth;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+void Raster::phongMode3(HDC  memDC, TGAImage* tan_normTex, Vec3f ldir, float* depthBuffer) {
+    //初始化深度缓存区
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            depthBuffer[i * width + j] = std::numeric_limits<float>::max() * (-1);
+        }
+    }
+    Matrix tranMat = get_tranMat();
+    //ofstream log("./renderlog.txt");
+    //log << tranMat << endl;
+    //log.close();
+
+    for (int i = 0; i < model->nfaces(); i++) {
+        Vec3f v0 = model->vert(model->face(i)[0]); Vec3f v1 = model->vert(model->face(i)[1]); Vec3f v2 = model->vert(model->face(i)[2]);
+        Vec3f n0 = model->normal(model->face(i)[0]); Vec3f n1 = model->normal(model->face(i)[1]); Vec3f n2 = model->normal(model->face(i)[2]);
+        Vec2f uv0 = model->uv(model->uvIndex(i)[0]); Vec2f uv1 = model->uv(model->uvIndex(i)[1]); Vec2f uv2 = model->uv(model->uvIndex(i)[2]);
+        Vec3f norm = ((v1 - v0) ^ (v2 - v0)).normalize();
+
+        //模型mvp变换
+        v0 = m2v(tranMat * p2m(v0)); v1 = m2v(tranMat * p2m(v1)); v2 = m2v(tranMat * p2m(v2));
+        //视口变换
+        v0 = Vec3f((v0.x + 1.0) * 0.5 * float(width), float(height) - (v0.y + 1.0) * 0.5 * float(height), v0.z);
+        v1 = Vec3f((v1.x + 1.0) * 0.5 * float(width), float(height) - (v1.y + 1.0) * 0.5 * float(height), v1.z);
+        v2 = Vec3f((v2.x + 1.0) * 0.5 * float(width), float(height) - (v2.y + 1.0) * 0.5 * float(height), v2.z);
+        Vec3f normScreen = m2v(tranMat * v2m(norm)) * (-1);
+        if (normScreen.z >= 0) {
+
+            int xmax = std::max(v0.x, std::max(v1.x, v2.x));
+            int xmin = std::min(v0.x, std::min(v1.x, v2.x));
+            int ymax = std::max(v0.y, std::max(v1.y, v2.y));
+            int ymin = std::min(v0.y, std::min(v1.y, v2.y));
+
+            for (int x = xmin; x <= xmax; x++) {
+                for (int y = ymin; y <= ymax; y++) {
+                    float alpha, beta, gamma;
+                    //求重心坐标
+                    alpha = (-(x - v1.x) * (v2.y - v1.y) + (y - v1.y) * (v2.x - v1.x)) / (-(v0.x - v1.x) * (v2.y - v1.y) + (v0.y - v1.y) * (v2.x - v1.x));
+                    beta = (-(x - v2.x) * (v0.y - v2.y) + (y - v2.y) * (v0.x - v2.x)) / (-(v1.x - v2.x) * (v0.y - v2.y) + (v1.y - v2.y) * (v0.x - v2.x));
+                    gamma = 1.f - alpha - beta;
+
+                    if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+                        float depth = alpha * v0.z + beta * v1.z + gamma * v2.z;
+                        if (depth > depthBuffer[x * width + y]) {
+                            Vec2f uv = uv0 * alpha + uv1 * beta + uv2 * gamma;
+                            norm = n0 * alpha + n1 * beta + n2 * gamma;
                             TGAColor tan_normcol = tan_normTex->get(int(tan_normTex->get_width() * uv.x), int(tan_normTex->get_height() * (1.f - uv.y)));
-                            Vec3f tan_norm = Vec3f(tan_normcol.r, tan_normcol.g, tan_normcol.b).normalize();
-                            
-                            Matrix TBNMat = get_TBNMat(norm, v0, v1, v2, uv0, uv1, uv2);
+                            Vec3f tan_norm = Vec3f((tan_normcol.r / 255.0 - 0.5) * 2.0, (tan_normcol.g / 255.0 - 0.5) * 2.0, (tan_normcol.b / 255.0 - 0.5) * 2.0).normalize();//特别注意，这里颜色是0-255，但是法线应该是-1到1
+
+                            Matrix TBNMat = get_TBNMat(norm, v0, v1, v2, uv0, uv1, uv2);//计算tbn矩阵
                             norm = m2v(TBNMat * v2m(tan_norm)) * (-1.0);
                             norm.normalize();
 
                             float ndotl = ldir * norm;//光照计算
-                            ndotl = clamp(0., 1., ndotl);
-                            COLORREF texturecolor = RGB(texcol.r, texcol.g, texcol.b);
-                            //COLORREF normcol = RGB(normtexcol.r, normtexcol.g, normtexcol.b);
-                            COLORREF lightcol = RGB(texcol.r * ndotl, texcol.g * ndotl, texcol.b * ndotl);
-                            //COLORREF phong = RGB(255 * ndotl, 255 * ndotl, 255 * ndotl);
-                            SetPixel(memDC, x, y, RGB(255,255,255));
+                            ndotl = clamp(0., 1., ndotl)*0.5+0.5;
+                            //COLORREF normcol = RGB(norm.x*255, norm.y * 255, norm.z * 255);
+                            COLORREF phong = RGB(255 * ndotl, 255 * ndotl, 255 * ndotl);
+                            SetPixel(memDC, x, y, phong);
                             depthBuffer[x * width + y] = depth;
                         }
                     }
