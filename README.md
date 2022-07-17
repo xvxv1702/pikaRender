@@ -5,22 +5,22 @@
 
 #### 目前实现的功能
 
-**文件层**：obj格式模型读取，tga格式文件读取和保存。
+**文件层：**obj格式模型读取，tga格式文件读取和保存。
 
 **数学层**：基本的向量和矩阵运算，必要的数学运算如clamp
 
-**平台层**：基于windows的gdi实现渲染结果的显示
+**平台层：**基于windows的gdi实现渲染结果的显示
 
-**功能层**：MVP变换、三角形光栅化、深度测试、phong光照模型、基础纹理运用
+**功能层：**MVP变换、三角形光栅化、深度测试、phong光照模型、基础纹理运用、法线插值、法线贴图（模型空间与切线空间）
 
 #### **有待实现的功能：**
 
-阴影，AO，PBR材质，可交互的3d环绕相机系统，硬件加速，光线追踪，法线贴图
+阴影，AO，PBR材质，可交互的3d环绕相机系统，硬件加速，光线追踪
 
 #### 部分效果：
 
-![线稿模式](https://github.com/xvxv1702/pikaRender/blob/main/pikaRender1_3/asset/manhead/%E7%BA%BF%E7%A8%BF%E6%A8%A1%E5%BC%8F.png)
+<img src="D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\asset\manhead\线稿模式.png" alt="线稿模式" style="zoom:50%;" />
 
-![phong模型](https://github.com/xvxv1702/pikaRender/blob/main/pikaRender1_3/asset/manhead/%E9%BB%91%E7%99%BD%E7%9D%80%E8%89%B2%E6%A8%A1%E5%BC%8F.png)
+<img src="D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\asset\manhead\黑白着色模式.png" alt="黑白着色模式" style="zoom:50%;" />
 
-![着色模式](https://github.com/xvxv1702/pikaRender/blob/main/pikaRender1_3/asset/manhead/%E7%9D%80%E8%89%B2%E6%A8%A1%E5%BC%8F.png)
+<img src="D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\asset\manhead\着色模式.png" alt="着色模式" style="zoom:50%;" />
