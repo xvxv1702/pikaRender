@@ -10,7 +10,7 @@ private:
 	std::vector<Vec3f> verts_;
 	std::vector<Vec3f> normal_;
 	std::vector<Vec2f> uv_;
-	std::vector<std::vector<int> > faces_;
+	std::vector<std::vector<int> > faces_;//顶点索引
 	std::vector<std::vector<int> > uvIndex_;//纹理坐标索引
 	std::vector<std::vector<int> > normIndex_;//法线索引
 public:

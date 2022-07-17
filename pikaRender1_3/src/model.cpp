@@ -21,18 +21,18 @@ Model::Model(const char* filename) : verts_(), faces_() {
             verts_.push_back(v);
         }
         else if (!line.compare(0, 2, "f ")) {
-            std::vector<int> f;
-            std::vector<int> uv;
-            std::vector<int> n;
+            std::vector<int> f;//顶点索引
+            std::vector<int> uv;//uv索引
+            std::vector<int> n;//法向量索引
             int idx, iuv, in;
             iss >> trash;
-            while (iss >> idx >> trash >> iuv >> trash >> in) {
+            while (iss >> idx >> trash >> iuv >> trash >> in) {//f后面由v/vt/vn组成
                 idx--; // in wavefront obj all indices start at 1, not zero
                 iuv--;
                 in--;
                 f.push_back(idx);
                 uv.push_back(iuv);
-                n.push_back(in);
+                n.push_back(in);//写入法线索引
             }
             faces_.push_back(f);
             uvIndex_.push_back(uv);
@@ -50,6 +50,9 @@ Model::Model(const char* filename) : verts_(), faces_() {
             iss >> trash;
             Vec2f uv;
             for (int i = 0; i < 2; i++) iss >> uv.raw[i];
+            for (int i = 0; i < 2; i++) {//设置如果uv的范围超过0-1，就重复使用贴图
+                while (uv.raw[i] > 1.0)uv.raw[i] -= 1.0;
+            }
             uv_.push_back(uv);
         }
     }
