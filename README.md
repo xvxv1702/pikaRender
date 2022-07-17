@@ -19,8 +19,14 @@
 
 #### 部分效果：
 
-<img src="D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\asset\manhead\线稿模式.png" alt="线稿模式" style="zoom:50%;" />
+<img src="https://github.com/xvxv1702/pikaRender/blob/main/pikaRender1_3/asset/result/linemode.png" alt="线稿模式" style="zoom:50%;" />
 
-<img src="D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\asset\manhead\黑白着色模式.png" alt="黑白着色模式" style="zoom:50%;" />
+<img src="https://github.com/xvxv1702/pikaRender/blob/main/pikaRender1_3/asset/result/colormode.png" alt="贴图模式" style="zoom:50%;" />
 
-<img src="D:\learn\TA_learn\softRender\pikaRender1_3\pikaRender1_3\asset\manhead\着色模式.png" alt="着色模式" style="zoom:50%;" />
+<img src="https://github.com/xvxv1702/pikaRender/blob/main/pikaRender1_3/asset/result/facemode.png" alt="面模式" style="zoom:50%;" />
+
+<img src="https://github.com/xvxv1702/pikaRender/blob/main/pikaRender1_3/asset/result/phongmode_normlerp.png" alt="法线插值模式" style="zoom:50%;" />
+
+<img src="https://github.com/xvxv1702/pikaRender/blob/main/pikaRender1_3/asset/result/phongmode_normmap.png" alt="法线贴图模式" style="zoom:50%;" />
+
+<img src="https://github.com/xvxv1702/pikaRender/blob/main/pikaRender1_3/asset/result/shademode.png" alt="着色模式" style="zoom:50%;" />
